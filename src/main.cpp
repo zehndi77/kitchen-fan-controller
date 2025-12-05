@@ -93,7 +93,7 @@ void loop()
   else if (mode == EXTERNAL_MODE_100)
     outVal = map(analogRead(EXTERN_ANALOG_PIN), 0, 1023, 0, 100); // analogRead(analog_pin), min_analog, max_analog, 0%, 100%);
   else if (mode == EXTERNAL_MODE_90)
-    outVal = map(analogRead(EXTERN_ANALOG_PIN), 0, 1023, 0, 90); // analogRead(analog_pin), min_analog, max_analog, 100%, 0%);
+    outVal = map(analogRead(EXTERN_ANALOG_PIN), 0, 1023, 10, 90); // analogRead(analog_pin), min_analog, max_analog, 100%, 0%);
 
   //  Serial output
   USE_SERIAL.print("  Mode:   ");
