@@ -3,14 +3,14 @@
 /**************
  *  Dimmer Project
  *  **************
-  
+
  *  ---------------------- OUTPUT & INPUT Pin table ---------------------
  *  +---------------+-------------------------+-------------------------+
  *  |   Board       | INPUT Pin               | OUTPUT Pin              |
  *  |               | Zero-Cross              |                         |
  *  +---------------+-------------------------+-------------------------+
- *  | Mega   / 
- *  | pro16MHzatmega328       
+ *  | Mega   /
+ *  | pro16MHzatmega328
  *                  | D2 (NOT CHANGABLE)      | D0-D1, D3-D70           |
  *  +---------------+-------------------------+-------------------------+
  *  | Uno           | D2 (NOT CHANGABLE)      | D0-D1, D3-D20           |
@@ -44,7 +44,7 @@ enum Mode
 };
 
 byte mode = EXTERNAL_MODE_100;
-String modeNames[] = { "EXTERNAL_MODE_100", "EXTERNAL_MODE_90", "ON_BOARDPOTI_MODE_100", "FIXED_MODE_90" };
+String modeNames[] = {"EXTERNAL_MODE_100", "EXTERNAL_MODE_90", "ON_BOARDPOTI_MODE_100", "FIXED_MODE_90"};
 
 byte readMode(void)
 {
@@ -73,15 +73,14 @@ void setup()
   USE_SERIAL.println("       0 |  0 : FIXED_MODE_90 ");
   USE_SERIAL.println("       1 |  0 : External Mode 90% ");
   USE_SERIAL.println("       0 |  1 : On-Board Potentiometer Mode ");
-  USE_SERIAL.println("       1 |  1 : External Mode 100% ");  
+  USE_SERIAL.println("       1 |  1 : External Mode 100% ");
   USE_SERIAL.println("############################");
-  
+
   pinMode(LEDPIN, OUTPUT);
   pinMode(MODE_0_PIN, INPUT_PULLUP);
   pinMode(MODE_1_PIN, INPUT_PULLUP);
 
   dimmer.begin(NORMAL_MODE, ON); // dimmer initialisation: name.begin(MODE, STATE)
-  
 }
 
 void loop()
@@ -97,21 +96,18 @@ void loop()
   else if (mode == EXTERNAL_MODE_90)
     outVal = map(analogRead(EXTERN_ANALOG_PIN), 0, 1023, 10, 90); // analogRead(analog_pin), min_analog, max_analog, 100%, 0%);
 
-    /*
-  //  Serial output
-  USE_SERIAL.print("  Mode:   ");
-  USE_SERIAL.print( modeNames[mode] );
-  USE_SERIAL.print("  OutVal[%]:   ");
-  USE_SERIAL.println(outVal);
-
-  */
+/*
+//  Serial output
+USE_SERIAL.print("  Mode:   ");
+USE_SERIAL.print( modeNames[mode] );
+USE_SERIAL.print("  OutVal[%]:   ");
+USE_SERIAL.println(outVal);
+*/
   dimmer.setPower(outVal); // name.setPower(0%-100%)
 
   // Visual feedback on LED 0% short flash  (2ms ON)  to 100% long flash (200ms ON)
-  delay(2 * outVal);  
+  delay(2 * outVal);
   digitalWrite(LEDPIN, 0);
   delay(250 - (2 * outVal));
   digitalWrite(LEDPIN, 1);
 }
-
-
