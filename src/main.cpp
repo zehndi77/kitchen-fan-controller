@@ -82,9 +82,14 @@ void setup()
 
   dimmer.begin(NORMAL_MODE, ON); // dimmer initialisation: name.begin(MODE, STATE)
 }
-
+byte counter = 0;
 void loop()
 {
+  if (counter < 255)
+  {
+    counter++;
+  }
+
   mode = readMode();
 
   if (mode == ON_BOARDPOTI_MODE)
@@ -96,14 +101,16 @@ void loop()
   else if (mode == EXTERNAL_MODE_90)
     outVal = map(analogRead(EXTERN_ANALOG_PIN), 0, 1023, 10, 90); // analogRead(analog_pin), min_analog, max_analog, 100%, 0%);
 
-/*
-//  Serial output
-USE_SERIAL.print("  Mode:   ");
-USE_SERIAL.print( modeNames[mode] );
-USE_SERIAL.print("  OutVal[%]:   ");
-USE_SERIAL.println(outVal);
-*/
   dimmer.setPower(outVal); // name.setPower(0%-100%)
+
+  if (counter < 200)
+  {
+    //  Serial output
+    USE_SERIAL.print("  Mode:   ");
+    USE_SERIAL.print(modeNames[mode]);
+    USE_SERIAL.print("  OutVal[%]:   ");
+    USE_SERIAL.println(outVal);
+  }
 
   // Visual feedback on LED 0% short flash  (2ms ON)  to 100% long flash (200ms ON)
   delay(2 * outVal);
