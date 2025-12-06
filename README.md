@@ -15,3 +15,6 @@ Kitchen fan controller based on ATMEGA328P with 0..10V input
 
 ![Prototype](./doc/20251205_222104.jpg)
   
+## Programming
+
+Switch to 11, otherwise programmin is not possible !!!

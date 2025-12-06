@@ -66,7 +66,6 @@ byte readMode(void)
 void setup()
 {
   USE_SERIAL.begin(115200);
-  dimmer.begin(NORMAL_MODE, ON); // dimmer initialisation: name.begin(MODE, STATE)
   USE_SERIAL.println("############################");
   USE_SERIAL.println("Dimming with potentiometer");
   USE_SERIAL.println("############################");
@@ -76,10 +75,13 @@ void setup()
   USE_SERIAL.println("       0 |  1 : On-Board Potentiometer Mode ");
   USE_SERIAL.println("       1 |  1 : External Mode 100% ");  
   USE_SERIAL.println("############################");
-  delay(2000);
+  
   pinMode(LEDPIN, OUTPUT);
   pinMode(MODE_0_PIN, INPUT_PULLUP);
   pinMode(MODE_1_PIN, INPUT_PULLUP);
+
+  dimmer.begin(NORMAL_MODE, ON); // dimmer initialisation: name.begin(MODE, STATE)
+  
 }
 
 void loop()
@@ -95,11 +97,14 @@ void loop()
   else if (mode == EXTERNAL_MODE_90)
     outVal = map(analogRead(EXTERN_ANALOG_PIN), 0, 1023, 10, 90); // analogRead(analog_pin), min_analog, max_analog, 100%, 0%);
 
+    /*
   //  Serial output
   USE_SERIAL.print("  Mode:   ");
   USE_SERIAL.print( modeNames[mode] );
   USE_SERIAL.print("  OutVal[%]:   ");
   USE_SERIAL.println(outVal);
+
+  */
   dimmer.setPower(outVal); // name.setPower(0%-100%)
 
   // Visual feedback on LED 0% short flash  (2ms ON)  to 100% long flash (200ms ON)
