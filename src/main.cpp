@@ -35,6 +35,14 @@
 dimmerLamp dimmer(outputPin); // initialase port for dimmer for MEGA, Leonardo, UNO, Arduino M0, Arduino Zero
 
 int outVal = 0;
+int analogVal = 0;
+int prevAnalogVal = 0;
+unsigned long boostStartTime = 0;
+bool boostActive = false;
+const unsigned long BOOST_DURATION = 10000; // 10 seconds in ms
+const int LOW_THRESHOLD = 6; // 1% of 1023
+const int RISE_THRESHOLD = 5; // 5% of 1023
+
 enum Mode
 {
   EXTERNAL_MODE_100,
@@ -90,26 +98,48 @@ void loop()
     counter++;
   }
 
-  int analogVal = analogRead(EXTERN_ANALOG_PIN);
+  prevAnalogVal = analogVal;
+  analogVal = analogRead(EXTERN_ANALOG_PIN);
 
+  // Check for boost trigger conditions
+  // Condition 1: Input falls below 10%
+  if (analogVal < LOW_THRESHOLD && prevAnalogVal >= LOW_THRESHOLD)
+  {
+    boostStartTime = millis();
+    boostActive = true;
+    USE_SERIAL.println("  [BOOST ACTIVATED due to FALL] ");
+  }
+  // Condition 2: Input rises from below 3% to above 10%
+  else if (prevAnalogVal < RISE_THRESHOLD && analogVal > LOW_THRESHOLD)
+  {
+    boostStartTime = millis();
+    boostActive = true;
+    USE_SERIAL.println("  [BOOST ACTIVATED due to RISE] ");
+  }
+
+  // Check if boost duration has expired
+  if (boostActive && (millis() - boostStartTime >= BOOST_DURATION))
+  {
+    boostActive = false;
+    USE_SERIAL.println("  [BOOST DEACTIVATED due to time] ");
+  }
 
   mode = readMode();
 
-  if (mode == ON_BOARDPOTI_MODE)
+  if (boostActive)
+  {
+    // Boost mode: set output to 100% (or scaled)
+    outVal = 85;
+  }
+  else if (mode == ON_BOARDPOTI_MODE)
     outVal = map(analogRead(POTI_ANALOG_PIN), 0, 1023, 0, 100); // analogRead(analog_pin), min_analog, max_analog, 0%, 100%);
   else if (mode == FIXED_MODE_90)
     outVal = 90;
   else if (mode == EXTERNAL_MODE_100)
     outVal = map(analogVal, 0, 1023, 0, 100); // analogRead(analog_pin), min_analog, max_analog, 0%, 100%);
   else if (mode == EXTERNAL_MODE_90)
-    outVal = map(analogVal, 0, 1023, 10, 90); // analogRead(analog_pin), min_analog, max_analog, 100%, 0%);
+    outVal = map(analogVal, 0, 1023, 7, 85); // analogRead(analog_pin), min_analog, max_analog, 100%, 0%);
     // adapt 10/90 to values that fit 0V and 10V respectively
-  
-    // TODO: time measurement with milis() 
-    // then measure difference in input voltage 
-    // if input falls below 10 %  make output 100 for 10s, then off
-    // if input goes from below 3 to above 10% make output to 100 for 10s, then normal operation
-
   dimmer.setPower(outVal); // name.setPower(0%-100%)
 
   if (counter < 200)
@@ -119,6 +149,10 @@ void loop()
     USE_SERIAL.print(modeNames[mode]);
     USE_SERIAL.print("  |  AnalogVal:   ");
     USE_SERIAL.print(analogVal);
+    if (boostActive)
+    {
+      USE_SERIAL.print("  [BOOST ACTIVE]");
+    }
     USE_SERIAL.print("  OutVal[%]:   ");
     USE_SERIAL.println(outVal);
   }
