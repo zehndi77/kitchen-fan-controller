@@ -90,6 +90,9 @@ void loop()
     counter++;
   }
 
+  int analogVal = analogRead(EXTERN_ANALOG_PIN);
+
+
   mode = readMode();
 
   if (mode == ON_BOARDPOTI_MODE)
@@ -97,11 +100,15 @@ void loop()
   else if (mode == FIXED_MODE_90)
     outVal = 90;
   else if (mode == EXTERNAL_MODE_100)
-    outVal = map(analogRead(EXTERN_ANALOG_PIN), 0, 1023, 0, 100); // analogRead(analog_pin), min_analog, max_analog, 0%, 100%);
+    outVal = map(analogVal, 0, 1023, 0, 100); // analogRead(analog_pin), min_analog, max_analog, 0%, 100%);
   else if (mode == EXTERNAL_MODE_90)
-    outVal = map(analogRead(EXTERN_ANALOG_PIN), 0, 1023, 10, 90); // analogRead(analog_pin), min_analog, max_analog, 100%, 0%);
+    outVal = map(analogVal, 0, 1023, 10, 90); // analogRead(analog_pin), min_analog, max_analog, 100%, 0%);
     // adapt 10/90 to values that fit 0V and 10V respectively
   
+    // TODO: time measurement with milis() 
+    // then measure difference in input voltage 
+    // if input falls below 10 %  make output 100 for 10s, then off
+    // if input goes from below 3 to above 10% make output to 100 for 10s, then normal operation
 
   dimmer.setPower(outVal); // name.setPower(0%-100%)
 
@@ -110,6 +117,8 @@ void loop()
     //  Serial output
     USE_SERIAL.print("  Mode:   ");
     USE_SERIAL.print(modeNames[mode]);
+    USE_SERIAL.print("  |  AnalogVal:   ");
+    USE_SERIAL.print(analogVal);
     USE_SERIAL.print("  OutVal[%]:   ");
     USE_SERIAL.println(outVal);
   }
