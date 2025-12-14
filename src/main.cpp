@@ -100,6 +100,8 @@ void loop()
     outVal = map(analogRead(EXTERN_ANALOG_PIN), 0, 1023, 0, 100); // analogRead(analog_pin), min_analog, max_analog, 0%, 100%);
   else if (mode == EXTERNAL_MODE_90)
     outVal = map(analogRead(EXTERN_ANALOG_PIN), 0, 1023, 10, 90); // analogRead(analog_pin), min_analog, max_analog, 100%, 0%);
+    // adapt 10/90 to values that fit 0V and 10V respectively
+  
 
   dimmer.setPower(outVal); // name.setPower(0%-100%)
 
