@@ -129,7 +129,7 @@ void loop()
   if (boostActive)
   {
     // Boost mode: set output to 100% (or scaled)
-    outVal = 85;
+    outVal = 81;
   }
   else if (mode == ON_BOARDPOTI_MODE)
     outVal = map(analogRead(POTI_ANALOG_PIN), 0, 1023, 0, 100); // analogRead(analog_pin), min_analog, max_analog, 0%, 100%);
@@ -138,10 +138,11 @@ void loop()
   else if (mode == EXTERNAL_MODE_100)
     outVal = map(analogVal, 0, 1023, 0, 100); // analogRead(analog_pin), min_analog, max_analog, 0%, 100%);
   else if (mode == EXTERNAL_MODE_90)
-    outVal = map(analogVal, 0, 1023, 7, 85); // analogRead(analog_pin), min_analog, max_analog, 100%, 0%);
-    // adapt 10/90 to values that fit 0V and 10V respectively
+    outVal = map(analogVal, 0, 1023, 8, 82); // analogRead(analog_pin), min_analog, max_analog, 100%, 0%);
+    // adapt 10/90 to values that fit 0V and 10V respectively, adapted to real values without oversteering
   dimmer.setPower(outVal); // name.setPower(0%-100%)
 
+// Debugging for the first 200 loops
   if (counter < 200)
   {
     //  Serial output
