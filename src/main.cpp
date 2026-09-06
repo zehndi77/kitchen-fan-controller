@@ -43,6 +43,14 @@ const unsigned long BOOST_DURATION = 10000; // 10 seconds in ms
 const int LOW_THRESHOLD = 6; // 1% of 1023
 const int RISE_THRESHOLD = 5; // 5% of 1023
 
+// Output window for the external control voltage.
+// Below OUT_MIN the fan does not move a significant amount of air, so the
+// usable input range is mapped linearly onto OUT_MIN..OUT_MAX instead of 0..100.
+const int OUT_OFF = 8;
+const int OUT_MIN = 25;   // lowest output that still moves a useful amount of air
+const int OUT_MAX = 81;  // full output
+const int BOOST_OUT = 78; // boost ceiling, kept below 100% to avoid motor blocking
+
 enum Mode
 {
   EXTERNAL_MODE_100,
@@ -128,18 +136,29 @@ void loop()
 
   if (boostActive)
   {
-    // Boost mode: set output to 100% (or scaled)
-    outVal = 81;
+    // Boost mode: ramp up close to full, but never to 100% (motor tends to block)
+    outVal = BOOST_OUT;
   }
   else if (mode == ON_BOARDPOTI_MODE)
     outVal = map(analogRead(POTI_ANALOG_PIN), 0, 1023, 0, 100); // analogRead(analog_pin), min_analog, max_analog, 0%, 100%);
   else if (mode == FIXED_MODE_90)
     outVal = 90;
-  else if (mode == EXTERNAL_MODE_100)
+    else if (mode == EXTERNAL_MODE_100)
     outVal = map(analogVal, 0, 1023, 0, 100); // analogRead(analog_pin), min_analog, max_analog, 0%, 100%);
-  else if (mode == EXTERNAL_MODE_90)
-    outVal = map(analogVal, 0, 1023, 8, 82); // analogRead(analog_pin), min_analog, max_analog, 100%, 0%);
-    // adapt 10/90 to values that fit 0V and 10V respectively, adapted to real values without oversteering
+  else if (mode == EXTERNAL_MODE_90){
+    // External control voltage on A0 (KNX analog out, 0..10V).
+    if (analogVal <= LOW_THRESHOLD)
+    {
+      // No control voltage present -> fan off.
+      outVal = OUT_OFF;
+    }
+    else
+    {
+      // Everything above the threshold is spread linearly over the usable
+      // output window: lowest control voltage -> OUT_MIN, 10V -> OUT_MAX.
+      outVal = map(analogVal, LOW_THRESHOLD, 1023, OUT_MIN, OUT_MAX);
+    }
+  }
   dimmer.setPower(outVal); // name.setPower(0%-100%)
 
 // Debugging for the first 200 loops
